@@ -48,7 +48,7 @@ pub fn build(b: *std.Build) void {
         .link_libcpp = true,
     });
 
-    const yoga_zig_lib = b.addStaticLibrary(.{
+    const yoga_zig_lib = b.addLibrary(.{
         .name = "yoga-zig",
         .root_module = yoga_zig_mod,
     });
@@ -63,18 +63,21 @@ pub fn build(b: *std.Build) void {
         .include_extensions = &.{".h"},
     });
 
-    yoga_zig_lib.linkLibCpp();
     yoga_zig_lib.addIncludePath(yoga_dep.path(""));
 
     b.installArtifact(yoga_zig_lib);
 
-    const yoga_zig_sample = b.addExecutable(.{
-        .name = "yoga-zig-sample",
+    const yoga_zig_sample_mod = b.createModule(.{
         .root_source_file = b.path("tests/raylib-demo/main.zig"),
         .target = target,
         .optimize = optimize,
     });
-    yoga_zig_sample.root_module.addImport("yoga-zig", yoga_zig_mod);
+    yoga_zig_sample_mod.addImport("yoga-zig", yoga_zig_mod);
+
+    const yoga_zig_sample = b.addExecutable(.{
+        .name = "yoga-zig-sample",
+        .root_module = yoga_zig_sample_mod,
+    });
 
     const run_cmd = b.addRunArtifact(yoga_zig_sample);
     run_cmd.step.dependOn(b.getInstallStep());
