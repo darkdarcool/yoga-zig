@@ -48,22 +48,22 @@ pub fn build(b: *std.Build) void {
         .link_libcpp = true,
     });
 
-    const yoga_zig_lib = b.addLibrary(.{
-        .name = "yoga-zig",
-        .root_module = yoga_zig_mod,
-    });
-
-    yoga_zig_lib.addCSourceFiles(.{
+    yoga_zig_mod.addCSourceFiles(.{
         .root = yoga_dep.path("yoga"),
         .files = &files,
         .flags = &CXXFLAGS,
     });
 
+    yoga_zig_mod.addIncludePath(yoga_dep.path(""));
+
+    const yoga_zig_lib = b.addLibrary(.{
+        .name = "yoga-zig",
+        .root_module = yoga_zig_mod,
+    });
+
     yoga_zig_lib.installHeadersDirectory(yoga_dep.path("yoga"), "yoga", .{
         .include_extensions = &.{".h"},
     });
-
-    yoga_zig_lib.addIncludePath(yoga_dep.path(""));
 
     b.installArtifact(yoga_zig_lib);
 
